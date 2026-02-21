@@ -64,5 +64,5 @@ variable "db_password" {
 
 variable "s3_backup_bucket" {
   type    = string
-  default = "ecommerce-backups-prod"
+  default = "ecommerce-backups-prod-789"
 }
