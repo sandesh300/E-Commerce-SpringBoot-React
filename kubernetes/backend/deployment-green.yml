@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-green
+  namespace: ecommerce-prod
+  labels:
+    app: backend
+    slot: green
+    version: v2.0
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+      slot: green
+  template:
+    metadata:
+      labels:
+        app: backend
+        slot: green
+        version: v2.0
+    spec:
+      containers:
+      - name: backend
+        image: <dockerhub>/ecommerce-backend:v2.0   # NEW VERSION
+        ports:
+        - containerPort: 8080
+        envFrom:
+        - configMapRef:
+            name: backend-config
+        - secretRef:
+            name: backend-secrets
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 5
