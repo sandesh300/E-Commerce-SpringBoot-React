@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: sandesh030/ecommerce-frontend:v1.0   # Jenkins will update this
+        image: sandesh030/ecommerce-frontend:v1.0
         ports:
         - containerPort: 80
         resources:
