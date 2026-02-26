@@ -24,10 +24,11 @@ module "vpc" {
   ]
 
   enable_nat_gateway   = true
-  single_nat_gateway   = false
+  single_nat_gateway   = false          
   enable_dns_hostnames = true
   enable_dns_support   = true
 
+  # Tags required for EKS to auto-discover subnets
   public_subnet_tags = {
     "kubernetes.io/role/elb"                          = 1
     "kubernetes.io/cluster/${var.project_name}-cluster" = "shared"

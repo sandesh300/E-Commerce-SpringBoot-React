@@ -1,0 +1,13 @@
+aws_region           = "eu-west-1"
+project_name         = "ecommerce"
+environment          = "prod"
+eks_node_instance_type = "t3.medium"
+eks_min_nodes        = 2
+eks_max_nodes        = 6
+eks_desired_nodes    = 3
+rds_instance_class   = "db.t3.medium"
+rds_allocated_storage = 20
+db_name              = "ecommercedb"
+db_username          = "admin"
+db_password          = "YourSuperSecretPassword123!"
+backup_bucket_name   = "ecommerce-backups-prod"
