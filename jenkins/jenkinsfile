@@ -1,4 +1,3 @@
-
 pipeline {
   agent any
 
@@ -15,7 +14,7 @@ pipeline {
     BACKEND_IMAGE  = 'ecommerce-backend'
     FRONTEND_IMAGE = 'ecommerce-frontend'
 
-    GIT_REPO = 'https://github.com/sandesh300/E-Commerce-SpringBoot-React'
+    GIT_REPO = 'https://github.com/sandesh300/Automated-Deployment-of-a-Scalable-E-commerce'
 
     DOCKER_BUILDKIT = '1'
   }
@@ -158,7 +157,7 @@ pipeline {
 
             git add kubernetes/
             git commit -m "ci: update ${params.DEPLOY_SLOT} images to ${params.IMAGE_TAG} [skip ci]"
-            git push https://${GIT_USER}:${GIT_PASS}@github.com/sandesh300/E-Commerce-SpringBoot-React.git main
+            git push https://${GIT_USER}:${GIT_PASS}@github.com/sandesh300/Automated-Deployment-of-a-Scalable-E-commerce.git main
           """
         }
       }

@@ -4,21 +4,15 @@ metadata:
   name: ecommerce-ingress
   namespace: ecommerce-prod
   annotations:
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"        
     nginx.ingress.kubernetes.io/proxy-body-size: "50m"
-    cert-manager.io/cluster-issuer: letsencrypt-prod
     nginx.ingress.kubernetes.io/affinity: cookie
     nginx.ingress.kubernetes.io/session-cookie-name: ecommerce-session
     nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
   ingressClassName: nginx
-  tls:
-  - hosts:
-    - yourdomain.com
-    secretName: ecommerce-tls-secret
   rules:
-  - host: yourdomain.com
-    http:
+  - http:
       paths:
       - path: /api
         pathType: Prefix
