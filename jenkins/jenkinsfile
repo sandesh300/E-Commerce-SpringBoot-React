@@ -149,15 +149,21 @@ pipeline {
             git config user.email 'jenkins@ci.com'
             git config user.name 'Jenkins'
 
-            sed -i "s|image:.*ecommerce-backend:.*|image: ${DOCKER_HUB_USER}/${BACKEND_IMAGE}:${params.IMAGE_TAG}|" \
-              kubernetes/backend/deployment-${params.DEPLOY_SLOT}.yml
+            sed -i "s|image:.*ecommerce-backend:.*|image: ${DOCKER_HUB_USER}/${BACKEND_IMAGE}:${params.IMAGE_TAG}|" \\
+            kubernetes/backend/deployment-${params.DEPLOY_SLOT}.yml
 
-            sed -i "s|image:.*ecommerce-frontend:.*|image: ${DOCKER_HUB_USER}/${FRONTEND_IMAGE}:${params.IMAGE_TAG}|" \
-              kubernetes/frontend/deployment-${params.DEPLOY_SLOT}.yml
+            sed -i "s|image:.*ecommerce-frontend:.*|image: ${DOCKER_HUB_USER}/${FRONTEND_IMAGE}:${params.IMAGE_TAG}|" \\
+            kubernetes/frontend/deployment-${params.DEPLOY_SLOT}.yml
 
-            git add kubernetes/
-            git commit -m "ci: update ${params.DEPLOY_SLOT} images to ${params.IMAGE_TAG} [skip ci]"
-            git push https://${GIT_USER}:${GIT_PASS}@github.com/sandesh300/Automated-Deployment-of-a-Scalable-E-commerce.git main
+           git add kubernetes/
+
+           # Only commit and push if there are actual changes
+           if git diff --cached --quiet; then
+          echo "No changes to commit. Skipping git push."
+          else
+          git commit -m "ci: update ${params.DEPLOY_SLOT} images to ${params.IMAGE_TAG} [skip ci]"
+          git push https://\${GIT_USER}:\${GIT_PASS}@github.com/sandesh300/Automated-Deployment-of-a-Scalable-E-commerce.git main
+          fi
           """
         }
       }
