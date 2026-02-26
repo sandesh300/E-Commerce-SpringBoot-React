@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: <dockerhub>/ecommerce-frontend:v1.0
+        image: sandesh030/ecommerce-frontend:v1.0
         ports:
         - containerPort: 80
         resources:
