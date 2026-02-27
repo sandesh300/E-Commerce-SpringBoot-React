@@ -5,6 +5,7 @@ import java.util.Collections;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -17,62 +18,57 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import jakarta.servlet.http.HttpServletRequest;
-
 @Configuration
 public class AppConfig {
 
+    // ====================== 1. Actuator endpoints – completely open ======================
     @Bean
-    public SecurityFilterChain springSecurityConfiguration(HttpSecurity http) throws Exception {
-
-        http
-            // 1. Session management: stateless
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
-            // 2. CORS configuration (simplified)
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-
-            // 3. CSRF disabled (for stateless APIs)
+    @Order(1)
+    public SecurityFilterChain actuatorSecurityFilterChain(HttpSecurity http) throws Exception {
+        http.securityMatcher("/actuator/**")
+            .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
             .csrf(csrf -> csrf.disable())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        return http.build();
+    }
 
-            // 4. Add custom JWT filters
+    // ====================== 2. Main application security ======================
+    @Bean
+    @Order(2)
+    public SecurityFilterChain mainSecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(csrf -> csrf.disable())
             .addFilterAfter(new JwtTokenGeneratorFilter(), BasicAuthenticationFilter.class)
             .addFilterBefore(new JwtTokenValidatorFilter(), BasicAuthenticationFilter.class)
-
-            // 5. Authorization rules – order matters!
             .authorizeHttpRequests(auth -> auth
-                // 🔓 Public endpoints (no authentication required)
-                .requestMatchers("/actuator/health/**").permitAll()           // K8s probes
+                // Public endpoints (excluding actuator – already handled above)
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/ecom/admin", "/ecom/customers").permitAll()
                 .requestMatchers(HttpMethod.DELETE, "/ecom/orders/users/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/ecom/signIn", "/ecom/product-reviews/**", "/ecom/products/**").permitAll()
 
-                // 👑 Role‑based endpoints – must come before .anyRequest()
+                // Role-based endpoints
                 .requestMatchers(HttpMethod.POST, "/ecom/product/**", "/ecom/order-shippers/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST, "/ecom/product/**", "/ecom/product-reviews/**",
                                  "/ecom/customer-addresses/**", "/ecom/cart/**", "/ecom/orders/**",
                                  "/ecom/order-shipping/**").hasRole("USER")
-
                 .requestMatchers(HttpMethod.PUT, "/ecom/admin/**", "/ecom/products/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/ecom/admin/**", "/ecom/product-reviews/**",
                                  "/ecom/customer-addresses/update/**", "/ecom/cart/**",
                                  "/ecom/order-shipping/**").hasRole("USER")
-
                 .requestMatchers(HttpMethod.DELETE, "/ecom/products/**", "/ecom/product-reviews/**",
                                  "/ecom/customer-addresses/delete/**", "/ecom/order-shipping/**",
                                  "/ecom/order-shippers/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/ecom/cart/remove-product/**").hasRole("USER")
-
                 .requestMatchers(HttpMethod.GET, "/ecom/customer-addresses/**", "/ecom/cart/products/**",
                                  "/ecom/orders/**", "/ecom/order-shippers", "/ecom/order-payments/**")
                                  .hasAnyRole("ADMIN", "USER")
 
-                // 🔐 All other requests must be authenticated
+                // All other requests must be authenticated
                 .anyRequest().authenticated()
             )
-
-            // 6. HTTP Basic (optional, can be removed if only JWT is used)
             .httpBasic(Customizer.withDefaults());
 
         return http.build();
