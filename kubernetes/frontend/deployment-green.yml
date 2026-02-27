@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: sandesh030/ecommerce-frontend:v1.0   # new version placeholder
+        image: sandesh030/ecommerce-frontend:v1.1   # new version placeholder
         ports:
         - containerPort: 80
         resources:
