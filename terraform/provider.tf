@@ -6,12 +6,6 @@ terraform {
       version = "~> 5.0"
     }
   }
-  
-   backend "s3" {
-     bucket = "your-terraform-state-bucket"
-     key    = "ecommerce/terraform.tfstate"
-     region = "eu-west-1"
-   }
 }
 
 provider "aws" {
